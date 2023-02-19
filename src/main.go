@@ -2,13 +2,37 @@ package main
 
 import (
 	"fmt"
-	"module/services"
+	"module/config"
+	"module/pkg/db"
+	"module/pkg/services"
+	"os"
 )
 
 var intInput int
+var strInput string
 
 func main() {
-LOOP:
+LOOP1:
+	for {
+		fmt.Println("Do you have an account?(Yes or No)")
+		fmt.Scanf("%s\n", &strInput)
+
+		switch strInput {
+
+		case "Yes":
+			login()
+			break LOOP1
+
+		case "No":
+			register()
+			break LOOP1
+
+		default:
+			fmt.Println("Invalid input. Try again.")
+		}
+	}
+
+LOOP2:
 	for {
 		fmt.Println("What you wanna do? (Select between 0-4).")
 		fmt.Println("0. Exit.")
@@ -17,10 +41,11 @@ LOOP:
 		fmt.Println("3. Update data.")
 		fmt.Println("4. Delete data.")
 		fmt.Scanf("%d\n", &intInput)
+
 		switch intInput {
 
 		case 0:
-			break LOOP
+			break LOOP2
 
 		case 1:
 			fmt.Println("Select the table.")
@@ -35,6 +60,7 @@ LOOP:
 
 			case 2:
 				services.ListUsers()
+				fmt.Println(config.App.User)
 
 			case 3:
 				services.ListCategories()
@@ -118,4 +144,44 @@ LOOP:
 			fmt.Println("Incorrect input. Please, try again.")
 		}
 	}
+}
+
+func login() {
+	for {
+		fmt.Println("Enter your username:")
+		fmt.Scanf("%s\n", &strInput)
+
+		var password string
+
+	OuterLoop:
+		for _, user := range db.Users {
+			if user.Username == strInput {
+				for i := 0; i < 3; i++ {
+					fmt.Println("Enter your password:")
+					fmt.Scanf("%s\n", &password)
+					if password == user.Password {
+						config.App.User = user
+						break OuterLoop
+					} else {
+						fmt.Println("Incorrect password. Try again.")
+					}
+				}
+				fmt.Println("You spent all 3 attempts. Try again.")
+				os.Exit(0)
+			}
+		}
+
+		fmt.Println("User with such a username does not exist. Try again.")
+		fmt.Println("If you want to exit, enter the number 0. Otherwise type anything.")
+		fmt.Scanf("%d\n", &intInput)
+
+		if intInput == 0 {
+			os.Exit(0)
+		}
+
+	}
+}
+
+func register() {
+	config.App.User = services.CreateUser()
 }
