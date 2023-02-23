@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"module/config"
 	"module/pkg/db"
@@ -12,6 +13,22 @@ var intInput int
 var strInput string
 
 func main() {
+	var username string
+	var password string
+
+	flag.StringVar(&username, "username", "postgres", "Name of the user")
+	flag.StringVar(&password, "password", "", "Password")
+	flag.Parse()
+
+	database, err := db.Connect(username, password)
+	if err != nil {
+		fmt.Println("Error connecting to database:", err)
+		os.Exit(1)
+	}
+
+	config.App.DB = database
+	defer config.App.DB.Close()
+
 LOOP1:
 	for {
 		fmt.Println("Do you have an account?(Yes or No)")

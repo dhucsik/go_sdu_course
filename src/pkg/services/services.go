@@ -2,7 +2,9 @@ package services
 
 import (
 	"fmt"
+	"module/config"
 	"module/pkg/db"
+	"os"
 	"time"
 )
 
@@ -187,9 +189,24 @@ func CreateOrder() {
 }
 
 func ListUsers() {
-	for _, user := range db.Users {
-		fmt.Printf("Id: %d\t| Username: %s\t| Email: %s\t| Password: %s\n",
-			user.Id, user.Username, user.Email, user.Password)
+	rows, err := config.App.DB.Query("SELECT id, username, email FROM users")
+	if err != nil {
+		fmt.Println("Failed to list users:", err)
+		os.Exit(1)
+	}
+	defer rows.Close()
+
+	fmt.Println("ID\tUsername\tEmail")
+	for rows.Next() {
+		var id int
+		var username string
+		var email string
+		err = rows.Scan(&id, &username, &email)
+		if err != nil {
+			fmt.Println("Failed to scan row:", err)
+			os.Exit(0)
+		}
+		fmt.Printf("%d\t%s\t%s\n", id, username, email)
 	}
 }
 
