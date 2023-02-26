@@ -1,18 +1,26 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"module/config"
-	"module/pkg/db"
-	"module/pkg/services"
-	"os"
+	"log"
+
+	"module/pkg/routes"
+
+	"github.com/gofiber/fiber/v2"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
-var intInput int
-var strInput string
-
 func main() {
+	app := fiber.New()
+
+	routes.Routes(app)
+
+	if err := app.Listen(":8080"); err != nil {
+		log.Printf("Oops... Server is not running! Reason: %v", err)
+	}
+}
+
+/*
 	var username string
 	var password string
 
@@ -20,14 +28,13 @@ func main() {
 	flag.StringVar(&password, "password", "", "Password")
 	flag.Parse()
 
-	database, err := db.Connect(username, password)
+	_, err := db.Connect(username, password)
 	if err != nil {
-		fmt.Println("Error connecting to database:", err)
-		os.Exit(1)
+		log.Fatal("Could not load the database")
 	}
 
-	config.App.DB = database
-	defer config.App.DB.Close()
+	app := fiber.New()
+	app.Listen(":8080")
 
 LOOP1:
 	for {
@@ -76,8 +83,7 @@ LOOP2:
 				services.ListItems()
 
 			case 2:
-				services.ListUsers()
-				fmt.Println(config.App.User)
+				//services.ListUsers()
 
 			case 3:
 				services.ListCategories()
@@ -177,7 +183,6 @@ func login() {
 					fmt.Println("Enter your password:")
 					fmt.Scanf("%s\n", &password)
 					if password == user.Password {
-						config.App.User = user
 						break OuterLoop
 					} else {
 						fmt.Println("Incorrect password. Try again.")
@@ -200,5 +205,5 @@ func login() {
 }
 
 func register() {
-	config.App.User = services.CreateUser()
 }
+*/
