@@ -1,6 +1,6 @@
 package models
 
 type Category struct {
-	ID    int64  `db:"id" json:"id" validate:"required"`
-	Title string `db:"title" json:"title" validate:"required,lte=100"`
+	CategoryID    int    `db:"category_id" json:"category_id" validate:"required"`
+	CategoryTitle string `db:"category_title" json:"category_title" validate:"required,lte=100"`
 }
