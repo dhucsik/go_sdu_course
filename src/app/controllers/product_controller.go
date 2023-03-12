@@ -41,6 +41,35 @@ func GetProducts(c *fiber.Ctx) error {
 	})
 }
 
+func GetProductsByName(c *fiber.Ctx) error {
+	title := c.Query("name")
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	products, err := db.GetProductsByName(title)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":    true,
+			"msg":      err.Error(),
+			"count":    0,
+			"products": nil,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"error":    false,
+		"msg":      nil,
+		"count":    len(products),
+		"products": products,
+	})
+}
+
 func GetProduct(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -120,14 +149,26 @@ func CreateProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	validate := utils.NewValidator()
-
-	if err := validate.Struct(product); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	user, err := db.GetUserByID(claims.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": true,
-			"msg":   utils.ValidatorErrors(err),
+			"msg":   err.Error(),
 		})
 	}
+
+	category, err := db.GetCategory(product.CategoryID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	product.User = user
+	product.Category = category
+
+	product.PasswordHash = ""
 
 	if err := db.CreateProduct(product); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -141,4 +182,144 @@ func CreateProduct(c *fiber.Ctx) error {
 		"msg":     nil,
 		"product": product,
 	})
+}
+
+func UpdateProduct(c *fiber.Ctx) error {
+	now := time.Now().Unix()
+
+	claims, err := utils.ExtractTokenMetadata(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	expires := claims.Expires
+
+	if now > expires {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": true,
+			"msg":   "unauthorized, check expiration time of your token",
+		})
+	}
+
+	product := models.Product{}
+
+	if err := c.BodyParser(product); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	foundedProduct, err := db.GetProduct(id)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   "product with the given ID is not found",
+		})
+	}
+
+	userID := claims.UserID
+	userRole := claims.UserRole
+
+	if userRole != repository.AdminRoleName && userID != foundedProduct.UserID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error": true,
+			"msg":   "permission denied",
+		})
+	}
+
+	if err := db.UpdateProduct(id, &product); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"error": true,
+		"msg":   nil,
+	})
+}
+
+func DeleteProduct(c *fiber.Ctx) error {
+	now := time.Now().Unix()
+
+	claims, err := utils.ExtractTokenMetadata(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	expires := claims.Expires
+
+	if now > expires {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": true,
+			"msg":   "unauthorized, check expiration time of your token",
+		})
+	}
+
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	product, err := db.GetProduct(id)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   "product with the given ID is not found",
+		})
+	}
+
+	userRole := claims.UserRole
+	userId := claims.UserID
+
+	if userRole != repository.AdminRoleName && userId != product.UserID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error": true,
+			"msg":   "permission denied",
+		})
+	}
+
+	if err := db.DeleteProduct(id); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
 }

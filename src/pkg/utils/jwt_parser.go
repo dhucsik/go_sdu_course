@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,7 +24,10 @@ func ExtractTokenMetadata(c *fiber.Ctx) (*TokenMetaData, error) {
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
-		userID := claims["id"].(int)
+		userID, err := strconv.Atoi(fmt.Sprint(claims["id"]))
+		if err != nil {
+			return nil, err
+		}
 
 		expires := int64(claims["expires"].(float64))
 

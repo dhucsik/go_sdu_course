@@ -6,10 +6,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Routes(app *fiber.App) {
+func PublicRoutes(app *fiber.App) {
 	route := app.Group("/api/v1")
 
-	route.Get("/product", controllers.GetProducts)
+	route.Get("/product", controllers.GetProductsByName)
 	route.Get("/product/:id", controllers.GetProduct)
 
 	route.Get("/category", controllers.GetCategories)

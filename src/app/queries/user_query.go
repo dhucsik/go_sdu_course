@@ -36,3 +36,16 @@ func (q *UserQueries) GetUserByEmail(email string) (models.User, error) {
 
 	return user, nil
 }
+
+func (q *UserQueries) GetUserByID(id int) (models.User, error) {
+	user := models.User{}
+
+	query := `SELECT * FROM users WHERE user_id = $1`
+
+	err := q.Get(&user, query, id)
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}

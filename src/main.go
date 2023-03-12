@@ -16,7 +16,8 @@ func main() {
 
 	middleware.FiberMiddleware(app)
 
-	routes.Routes(app)
+	routes.PublicRoutes(app)
+	routes.PrivateRoutes(app)
 
 	if err := app.Listen(":8080"); err != nil {
 		log.Printf("Oops... Server is not running! Reason: %v", err)

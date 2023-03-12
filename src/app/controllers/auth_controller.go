@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"fmt"
 	"module/app/models"
 	"module/pkg/utils"
 	"module/platform/database"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,15 +17,6 @@ func UserSignUp(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
 			"msg":   err.Error(),
-		})
-	}
-
-	validate := utils.NewValidator()
-
-	if err := validate.Struct(signUp); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   utils.ValidatorErrors(err),
 		})
 	}
 
@@ -53,13 +44,6 @@ func UserSignUp(c *fiber.Ctx) error {
 	user.Email = signUp.Email
 	user.PasswordHash = utils.GeneratePassword(signUp.Password)
 	user.UserRole = role
-
-	if err := validate.Struct(user); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   utils.ValidatorErrors(err),
-		})
-	}
 
 	if err := db.CreateUser(user); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -111,7 +95,7 @@ func UserSignIn(c *fiber.Ctx) error {
 		})
 	}
 
-	tokens, err := utils.GenerateNewTokens(fmt.Sprint(foundedUser.UserID), foundedUser.UserRole)
+	tokens, err := utils.GenerateNewTokens(strconv.Itoa(foundedUser.UserID), foundedUser.UserRole)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": true,

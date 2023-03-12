@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"fmt"
 	"module/app/models"
 
 	"github.com/jmoiron/sqlx"
@@ -26,7 +27,27 @@ func (q *ProductQueries) GetProducts() ([]models.Product, error) {
 		return products, err
 	}
 
-	return products, err
+	return products, nil
+}
+
+func (q *ProductQueries) GetProductsByName(title string) ([]models.Product, error) {
+	products := []models.Product{}
+
+	query := `SELECT p.product_id, p.product_title, 
+				u.user_id, u.username, u.email, 
+				c.category_id, c.category_title, 
+				price, description 
+				FROM products p 
+				JOIN users u ON p.seller_id = u.user_id
+				JOIN categories c ON p.category_id = c.category_id
+				WHERE LOWER(p.product_title) LIKE $1`
+
+	err := q.Select(&products, query, fmt.Sprintf("%%%s%%", title))
+	if err != nil {
+		return products, err
+	}
+
+	return products, nil
 }
 
 func (q *ProductQueries) GetProduct(id int) (models.Product, error) {
@@ -54,6 +75,29 @@ func (q *ProductQueries) CreateProduct(p *models.Product) error {
 				VALUES ($1, $2, $3, $4, $5)`
 
 	_, err := q.Exec(query, p.ProductTitle, p.UserID, p.CategoryID, p.Price, p.Description)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (q *ProductQueries) UpdateProduct(id int, p *models.Product) error {
+	query := `UPDATE products SET product_title = $2, category_id = $3, price = $4, description = $5
+				WHERE product_id = $1`
+
+	_, err := q.Exec(query, id, p.ProductTitle, p.CategoryID, p.Price, p.Description)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (q *ProductQueries) DeleteProduct(id int) error {
+	query := `DELETE FROM products WHERE product_id = $1`
+
+	_, err := q.Exec(query, id)
 	if err != nil {
 		return err
 	}
