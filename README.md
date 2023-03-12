@@ -8,6 +8,7 @@ This is our project for course INF 368 "The Go programming language".
 2. Yermukhamed Tilek. 200103094.
 3. Baijuman Ali. 200103514.
 4. Sanakuly Dauirbek. 200103453.
+5. Kenzhebay Zhumadil. 200103245
 
 ## Database
 
