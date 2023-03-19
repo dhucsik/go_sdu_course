@@ -11,11 +11,11 @@ type UserQueries struct {
 }
 
 func (q *UserQueries) CreateUser(u *models.User) error {
-	query := `INSERT INTO users(username, created_at, email, password_hash, user_role) VALUES ($1, $2, $3, $4, $5)`
+	query := `INSERT INTO users(username, created_at, updated_at, email, password_hash, user_role) VALUES ($1, $2, $3, $4, $5, $6)`
 
 	_, err := q.Exec(
 		query,
-		u.Username, u.CreatedAt, u.Email, u.PasswordHash, u.UserRole,
+		u.Username, u.CreatedAt, u.UpdatedAt, u.Email, u.PasswordHash, u.UserRole,
 	)
 	if err != nil {
 		return err
