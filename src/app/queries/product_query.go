@@ -41,6 +41,14 @@ func (q *ProductQueries) ListProducts(queries map[string]string) ([]models.Produ
 		queries["endPrice"] = "10000000"
 	}
 
+	if queries["startRating"] == "" {
+		queries["startRating"] = "0"
+	}
+
+	if queries["endRating"] == "" {
+		queries["endRating"] = "5"
+	}
+
 	query := `SELECT p.product_id, p.product_title, 
 				u.user_id, u.username, u.email, 
 				c.category_id, c.category_title, 
