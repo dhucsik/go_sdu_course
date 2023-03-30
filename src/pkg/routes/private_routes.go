@@ -13,4 +13,6 @@ func PrivateRoutes(a *fiber.App) {
 	route.Post("/product", middleware.JWTProtected(), controllers.CreateProduct)
 	route.Delete("/product/:id", middleware.JWTProtected(), controllers.DeleteProduct)
 	route.Put("/product/:id", middleware.JWTProtected(), controllers.UpdateProduct)
+
+	route.Post("/product/:id/review", middleware.JWTProtected(), controllers.CreateReview)
 }

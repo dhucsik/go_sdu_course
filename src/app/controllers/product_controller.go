@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+/*
 func GetProducts(c *fiber.Ctx) error {
 	db, err := database.OpenDBConnection()
 	if err != nil {
@@ -40,9 +41,15 @@ func GetProducts(c *fiber.Ctx) error {
 		"products": products,
 	})
 }
+*/
 
-func GetProductsByName(c *fiber.Ctx) error {
-	title := c.Query("name")
+func ListProducts(c *fiber.Ctx) error {
+	queries := make(map[string]string, 5)
+	queries["title"] = c.Query("name")
+	queries["startPrice"] = c.Query("StartPrice")
+	queries["endPrice"] = c.Query("EndPrice")
+	queries["startRating"] = c.Query("StartRating")
+	queries["endRating"] = c.Query("EndRating")
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
@@ -52,7 +59,7 @@ func GetProductsByName(c *fiber.Ctx) error {
 		})
 	}
 
-	products, err := db.GetProductsByName(title)
+	products, err := db.ListProducts(queries)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error":    true,
@@ -204,7 +211,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	product := models.Product{}
+	product := &models.Product{}
 
 	if err := c.BodyParser(product); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -247,7 +254,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := db.UpdateProduct(id, &product); err != nil {
+	if err := db.UpdateProduct(id, product); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": true,
 			"msg":   err.Error(),
@@ -255,8 +262,9 @@ func UpdateProduct(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"error": true,
-		"msg":   nil,
+		"error":   false,
+		"msg":     nil,
+		"product": product,
 	})
 }
 

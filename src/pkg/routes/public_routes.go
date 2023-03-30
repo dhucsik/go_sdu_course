@@ -9,8 +9,9 @@ import (
 func PublicRoutes(app *fiber.App) {
 	route := app.Group("/api/v1")
 
-	route.Get("/product", controllers.GetProductsByName)
+	route.Get("/product", controllers.ListProducts)
 	route.Get("/product/:id", controllers.GetProduct)
+	route.Get("/product/:id/review", controllers.ListReviews)
 
 	route.Get("/category", controllers.GetCategories)
 	route.Get("/category/:id", controllers.GetCategory)

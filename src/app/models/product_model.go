@@ -7,4 +7,5 @@ type Product struct {
 	Category     `json:"category"`
 	Price        float64 `db:"price" json:"price"`
 	Description  string  `db:"description" json:"description"`
+	AvgRating    float64 `db:"avg_rating" json:"avg_rating"`
 }

@@ -16,6 +16,7 @@ type Queries struct {
 	*queries.UserQueries
 	*queries.ProductQueries
 	*queries.CategoryQueries
+	*queries.ReviewQueries
 }
 
 func OpenDBConnection() (*Queries, error) {
@@ -51,5 +52,6 @@ func OpenDBConnection() (*Queries, error) {
 		UserQueries:     &queries.UserQueries{DB: db},
 		ProductQueries:  &queries.ProductQueries{DB: db},
 		CategoryQueries: &queries.CategoryQueries{DB: db},
+		ReviewQueries:   &queries.ReviewQueries{DB: db},
 	}, nil
 }

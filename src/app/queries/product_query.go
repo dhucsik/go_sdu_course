@@ -11,38 +11,49 @@ type ProductQueries struct {
 	*sqlx.DB
 }
 
-func (q *ProductQueries) GetProducts() ([]models.Product, error) {
+/*
+	func (q *ProductQueries) GetProducts() ([]models.Product, error) {
+		products := []models.Product{}
+
+		query := `SELECT p.product_id, p.product_title,
+					u.user_id, u.username, u.email,
+					c.category_id, c.category_title,
+					price, description
+					FROM products p
+					JOIN users u ON p.seller_id = u.user_id
+					JOIN categories c ON p.category_id = c.category_id`
+
+		err := q.Select(&products, query)
+		if err != nil {
+			return products, err
+		}
+
+		return products, nil
+	}
+*/
+func (q *ProductQueries) ListProducts(queries map[string]string) ([]models.Product, error) {
 	products := []models.Product{}
 
-	query := `SELECT p.product_id, p.product_title, 
-				u.user_id, u.username, u.email, 
-				c.category_id, c.category_title, 
-				price, description 
-				FROM products p 
-				JOIN users u ON p.seller_id = u.user_id
-				JOIN categories c ON p.category_id = c.category_id`
-
-	err := q.Select(&products, query)
-	if err != nil {
-		return products, err
+	if queries["startPrice"] == "" {
+		queries["startPrice"] = "0"
+	}
+	if queries["endPrice"] == "" {
+		queries["endPrice"] = "10000000"
 	}
 
-	return products, nil
-}
-
-func (q *ProductQueries) GetProductsByName(title string) ([]models.Product, error) {
-	products := []models.Product{}
-
 	query := `SELECT p.product_id, p.product_title, 
 				u.user_id, u.username, u.email, 
 				c.category_id, c.category_title, 
-				price, description 
+				p.price, p.description, p.avg_rating
 				FROM products p 
 				JOIN users u ON p.seller_id = u.user_id
 				JOIN categories c ON p.category_id = c.category_id
-				WHERE LOWER(p.product_title) LIKE $1`
+				WHERE LOWER(p.product_title) LIKE $1
+				AND p.price >= $2 AND p.price <= $3
+				AND p.avg_rating >= $4
+				AND p.avg_rating <= $5`
 
-	err := q.Select(&products, query, fmt.Sprintf("%%%s%%", title))
+	err := q.Select(&products, query, fmt.Sprintf("%%%s%%", queries["title"]), queries["startPrice"], queries["endPrice"], queries["startRating"], queries["endRating"])
 	if err != nil {
 		return products, err
 	}
