@@ -11,7 +11,9 @@ func PublicRoutes(app *fiber.App) {
 
 	route.Get("/product", controllers.ListProducts)
 	route.Get("/product/:id", controllers.GetProduct)
+
 	route.Get("/product/:id/review", controllers.ListReviews)
+	route.Get("/review/:id", controllers.GetReview)
 
 	route.Get("/category", controllers.GetCategories)
 	route.Get("/category/:id", controllers.GetCategory)
