@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"module/app/models"
+	"module/pkg/repository"
 	"module/pkg/utils"
 	"module/platform/database"
 	"strconv"
@@ -124,4 +125,178 @@ func CreateReview(c *fiber.Ctx) error {
 		}
 	*/
 
+}
+
+func GetReview(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	review, err := db.GetReview(id)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   true,
+			"msg":     "product with the given ID is not found",
+			"product": nil,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"error":   false,
+		"msg":     nil,
+		"product": review,
+	})
+}
+
+func UpdateReview(c *fiber.Ctx) error {
+	now := time.Now().Unix()
+
+	claims, err := utils.ExtractTokenMetadata(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	expires := claims.Expires
+
+	if now > expires {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": true,
+			"msg":   "unauthorized, check expiration time of your token",
+		})
+	}
+
+	review := models.Review{}
+
+	if err := c.BodyParser(review); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	foundedReview, err := db.GetReview(id)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   "review with the given ID not found",
+		})
+	}
+
+	userID := claims.UserID
+	userRole := claims.UserRole
+
+	if userRole != repository.AdminRoleName && userID != foundedReview.UserID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error": true,
+			"msg":   "permission denied",
+		})
+	}
+
+	if err := db.UpdateReview(id, review); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"error":  false,
+		"msg":    nil,
+		"review": review,
+	})
+}
+
+func DeleteReview(c *fiber.Ctx) error {
+	now := time.Now().Unix()
+
+	claims, err := utils.ExtractTokenMetadata(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	expires := claims.Expires
+
+	if now > expires {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": true,
+			"msg":   "unauthorized, check expiration time of your token",
+		})
+	}
+
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	review, err := db.GetReview(id)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   "review with the given ID is not found",
+		})
+	}
+
+	userRole := claims.UserRole
+	userId := claims.UserID
+
+	if userRole != repository.AdminRoleName && userId != review.UserID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error": true,
+			"msg":   "permission denied",
+		})
+	}
+
+	if err := db.DeleteReview(id); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
 }

@@ -156,25 +156,6 @@ func CreateProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := db.GetUserByID(claims.UserID)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
-
-	category, err := db.GetCategory(product.CategoryID)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
-
-	product.User = user
-	product.Category = category
-
 	product.PasswordHash = ""
 
 	if err := db.CreateProduct(product); err != nil {
