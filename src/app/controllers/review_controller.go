@@ -101,6 +101,13 @@ func CreateReview(c *fiber.Ctx) error {
 		})
 	}
 
+	if err := db.UpdateProductAvgRating(review.ProductID); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
 	return c.JSON(fiber.Map{
 		"error":  false,
 		"msg":    nil,
@@ -224,6 +231,13 @@ func UpdateReview(c *fiber.Ctx) error {
 	}
 
 	if err := db.UpdateReview(id, review); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	if err := db.UpdateProductAvgRating(review.ProductID); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": true,
 			"msg":   err.Error(),
