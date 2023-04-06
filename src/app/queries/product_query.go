@@ -113,6 +113,21 @@ func (q *ProductQueries) UpdateProduct(id int, p *models.Product) error {
 	return nil
 }
 
+func (q *ProductQueries) UpdateProductAvgRating(id int) error {
+	query := `UPDATE products SET avg_rating = (
+					SELECT AVG(rating) FROM reviews 
+					WHERE reviews.product_id = $1
+				)
+				WHERE product_id = $2`
+
+	_, err := q.Exec(query, id, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (q *ProductQueries) DeleteProduct(id int) error {
 	query := `DELETE FROM products WHERE product_id = $1`
 
