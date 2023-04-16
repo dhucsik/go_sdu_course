@@ -19,7 +19,7 @@ func main() {
 	routes.PublicRoutes(app)
 	routes.PrivateRoutes(app)
 
-	if err := app.Listen(":8080"); err != nil {
+	if err := app.Listen(":8586"); err != nil {
 		log.Printf("Oops... Server is not running! Reason: %v", err)
 	}
 }
