@@ -6,7 +6,7 @@ volumes:
 services:
   e-commerce-app:
     build: ./
-    command: ./app
+    command: ./start
     ports:
       - "8586:8586"
     volumes:
