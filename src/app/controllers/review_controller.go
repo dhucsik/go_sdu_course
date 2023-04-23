@@ -11,6 +11,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// @Summary List Reviews
+// @Tags review
+// @Description list reviews
+// @ID list-reviews
+// @Accept json
+// @Produce json
+// @Param product_id path int true "product id"
+// @Success 200 {object} []models.Review
+// @Failure 400,404 {object} string "message"
+// @Failure 500 {object} string "message"
+// @Failure default {object} string "message"
+// @Router /product/{product_id}/review [get]
 func ListReviews(c *fiber.Ctx) error {
 	productID, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -46,6 +58,19 @@ func ListReviews(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Create Review
+// @Security ApiKeyAuth
+// @Tags review
+// @Description create review
+// @ID create-review
+// @Accept  json
+// @Produce  json
+// @Param input body models.Review true "review info"
+// @Success 200 {object} models.Review
+// @Failure 400,404 {string} string "message"
+// @Failure 500 {string} string "message"
+// @Failure default {string} string "message"
+// @Router /product/:id/review [post]
 func CreateReview(c *fiber.Ctx) error {
 	now := time.Now().Unix()
 
@@ -134,6 +159,18 @@ func CreateReview(c *fiber.Ctx) error {
 
 }
 
+// @Summary Get Review
+// @Tags review
+// @Description get review by ID
+// @ID get-review
+// @Accept json
+// @Produce json
+// @Param review_id path string true "review id"
+// @Success 200 {object} models.Review
+// @Failure 400,404 {object} string "message"
+// @Failure 500 {object} string "message"
+// @Failure default {object} string "message"
+// @Router /review/{review_id} [get]
 func GetReview(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -167,6 +204,20 @@ func GetReview(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Update Review
+// @Security ApiKeyAuth
+// @Tags review
+// @Description update review
+// @ID update-review
+// @Accept json
+// @Produce json
+// @Param review_id path string true "review id"
+// @Param input body models.Review true "review info"
+// @Success 200 {object} models.Review
+// @Failure 400,404 {string} string "message"
+// @Failure 500 {string} string "message"
+// @Failure default {string} string "message"
+// @Router /review/{review_id} [put]
 func UpdateReview(c *fiber.Ctx) error {
 	now := time.Now().Unix()
 
@@ -251,6 +302,19 @@ func UpdateReview(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Delete Review
+// @Security ApiKeyAuth
+// @Tags review
+// @Description delete review by ID
+// @ID delete-review
+// @Accept json
+// @Produce json
+// @Param review_id path string true "review id"
+// @Success 200
+// @Failure 400,404 {object} string "message"
+// @Failure 500 {object} string "message"
+// @Failure default {object} string "message"
+// @Router /review/{review_id} [delete]
 func DeleteReview(c *fiber.Ctx) error {
 	now := time.Now().Unix()
 

@@ -1,0 +1,649 @@
+basePath: /api/v1
+definitions:
+  models.Category:
+    properties:
+      category_id:
+        type: integer
+      category_title:
+        type: string
+    type: object
+  models.Product:
+    properties:
+      avg_rating:
+        type: number
+      category:
+        $ref: '#/definitions/models.Category'
+      description:
+        type: string
+      price:
+        type: number
+      product_id:
+        type: integer
+      product_title:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+  models.Review:
+    properties:
+      comment:
+        type: string
+      product:
+        $ref: '#/definitions/models.Product'
+      rating:
+        type: integer
+      review_id:
+        type: integer
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+  models.SignIn:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      password:
+        maxLength: 255
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.SignUp:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      password:
+        maxLength: 255
+        type: string
+      user_role:
+        maxLength: 25
+        type: string
+      username:
+        maxLength: 50
+        type: string
+    required:
+    - email
+    - password
+    - user_role
+    - username
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      password_hash:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      user_role:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8586
+info:
+  contact:
+    email: diasgalikhanov@gmail.com
+    name: Dias Galikhanov
+  description: E-commerce with jwt auth
+  termsOfService: http://swagger.io/terms/
+  title: E-commerce application
+  version: "1.0"
+paths:
+  /category:
+    get:
+      consumes:
+      - application/json
+      description: list categories
+      operationId: list-categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Category'
+            type: array
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      summary: List Categories
+      tags:
+      - category
+  /category/{category_id}:
+    get:
+      consumes:
+      - application/json
+      description: get category by ID
+      operationId: get-category
+      parameters:
+      - description: category id
+        in: path
+        name: category_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Category'
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      summary: Get Category
+      tags:
+      - category
+  /product:
+    get:
+      consumes:
+      - application/json
+      description: list products
+      operationId: list-products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Product'
+            type: array
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      summary: List Products
+      tags:
+      - product
+    post:
+      consumes:
+      - application/json
+      description: create product
+      operationId: create-product
+      parameters:
+      - description: product info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Create Product
+      tags:
+      - product
+  /product/:id/review:
+    post:
+      consumes:
+      - application/json
+      description: create review
+      operationId: create-review
+      parameters:
+      - description: review info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Review'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Review'
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Create Review
+      tags:
+      - review
+  /product/{product_id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete product by ID
+      operationId: delete-product
+      parameters:
+      - description: product id
+        in: path
+        name: product_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Product
+      tags:
+      - product
+    get:
+      consumes:
+      - application/json
+      description: get product by ID
+      operationId: get-product
+      parameters:
+      - description: product id
+        in: path
+        name: product_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      summary: Get Product
+      tags:
+      - product
+    put:
+      consumes:
+      - application/json
+      description: update product
+      operationId: update-product
+      parameters:
+      - description: product id
+        in: path
+        name: product_id
+        required: true
+        type: string
+      - description: product info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Update Product
+      tags:
+      - product
+  /product/{product_id}/review:
+    get:
+      consumes:
+      - application/json
+      description: list reviews
+      operationId: list-reviews
+      parameters:
+      - description: product id
+        in: path
+        name: product_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Review'
+            type: array
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      summary: List Reviews
+      tags:
+      - review
+  /review/{review_id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete review by ID
+      operationId: delete-review
+      parameters:
+      - description: review id
+        in: path
+        name: review_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Review
+      tags:
+      - review
+    get:
+      consumes:
+      - application/json
+      description: get review by ID
+      operationId: get-review
+      parameters:
+      - description: review id
+        in: path
+        name: review_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Review'
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      summary: Get Review
+      tags:
+      - review
+    put:
+      consumes:
+      - application/json
+      description: update review
+      operationId: update-review
+      parameters:
+      - description: review id
+        in: path
+        name: review_id
+        required: true
+        type: string
+      - description: review info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Review'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Review'
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Update Review
+      tags:
+      - review
+  /sign-in:
+    post:
+      consumes:
+      - application/json
+      description: login
+      operationId: login
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      summary: SignIn
+      tags:
+      - auth
+  /sign-up:
+    post:
+      consumes:
+      - application/json
+      description: create account
+      operationId: create-account
+      parameters:
+      - description: account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SignUp'
+        "400":
+          description: message
+          schema:
+            type: string
+        "404":
+          description: message
+          schema:
+            type: string
+        "500":
+          description: message
+          schema:
+            type: string
+        default:
+          description: message
+          schema:
+            type: string
+      summary: SignUp
+      tags:
+      - auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

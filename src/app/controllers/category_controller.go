@@ -7,6 +7,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// @Summary List Categories
+// @Tags category
+// @Description list categories
+// @ID list-categories
+// @Accept json
+// @Produce json
+// @Success 200 {object} []models.Category
+// @Failure 400,404 {object} string "message"
+// @Failure 500 {object} string "message"
+// @Failure default {object} string "message"
+// @Router /category [get]
 func GetCategories(c *fiber.Ctx) error {
 	db, err := database.OpenDBConnection()
 	if err != nil {
@@ -34,6 +45,18 @@ func GetCategories(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Get Category
+// @Tags category
+// @Description get category by ID
+// @ID get-category
+// @Accept json
+// @Produce json
+// @Param category_id path string true "category id"
+// @Success 200 {object} models.Category
+// @Failure 400,404 {object} string "message"
+// @Failure 500 {object} string "message"
+// @Failure default {object} string "message"
+// @Router /category/{category_id} [get]
 func GetCategory(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
