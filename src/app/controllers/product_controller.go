@@ -62,13 +62,7 @@ func ListProducts(c *fiber.Ctx) error {
 	queries["startRating"] = c.Query("StartRating")
 	queries["endRating"] = c.Query("EndRating")
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	db := database.GetDatabase()
 
 	products, err := db.ListProducts(queries)
 	if err != nil {
@@ -109,13 +103,7 @@ func GetProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	db := database.GetDatabase()
 
 	product, err := db.GetProduct(id)
 	if err != nil {
@@ -184,13 +172,14 @@ func CreateProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+	if err := utils.ValidateProduct(product); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
 			"msg":   err.Error(),
 		})
 	}
+
+	db := database.GetDatabase()
 
 	product.PasswordHash = ""
 
@@ -251,6 +240,13 @@ func UpdateProduct(c *fiber.Ctx) error {
 		})
 	}
 
+	if err := utils.ValidateProduct(product); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -259,13 +255,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	db := database.GetDatabase()
 
 	foundedProduct, err := db.GetProduct(id)
 	if err != nil {
@@ -340,13 +330,7 @@ func DeleteProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	db := database.GetDatabase()
 
 	product, err := db.GetProduct(id)
 	if err != nil {

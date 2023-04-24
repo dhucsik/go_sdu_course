@@ -5,6 +5,7 @@ import (
 
 	"module/pkg/middleware"
 	"module/pkg/routes"
+	"module/platform/database"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -32,6 +33,10 @@ import (
 // @name Authorization
 func main() {
 	app := fiber.New()
+
+	if err := database.OpenDBConnection(); err != nil {
+		log.Fatalln(err)
+	}
 
 	middleware.FiberMiddleware(app)
 

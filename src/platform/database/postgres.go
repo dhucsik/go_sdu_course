@@ -12,6 +12,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+var database *Queries
+
+func GetDatabase() *Queries {
+	return database
+}
+
 type Queries struct {
 	*queries.UserQueries
 	*queries.ProductQueries
@@ -19,7 +25,7 @@ type Queries struct {
 	*queries.ReviewQueries
 }
 
-func OpenDBConnection() (*Queries, error) {
+func OpenDBConnection() error {
 	maxConn, _ := strconv.Atoi(os.Getenv("DB_MAX_CONNECTIONS"))
 	maxIdleConn, _ := strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNECTIONS"))
 	maxLifetimeConn, _ := strconv.Atoi(os.Getenv("DB_MAX_LIFETIME_CONNECTIONS"))
@@ -36,7 +42,12 @@ func OpenDBConnection() (*Queries, error) {
 
 	db, err := sqlx.Connect("pgx", url)
 	if err != nil {
-		return nil, fmt.Errorf("error, not connected to database, %w", err)
+		return fmt.Errorf("error, not connected to database, %w", err)
+	}
+
+	_, err = db.Exec(migration)
+	if err != nil {
+		return err
 	}
 
 	db.SetMaxOpenConns(maxConn)
@@ -45,13 +56,15 @@ func OpenDBConnection() (*Queries, error) {
 
 	if err := db.Ping(); err != nil {
 		defer db.Close()
-		return nil, fmt.Errorf("error, not sent ping to database, %w", err)
+		return fmt.Errorf("error, not sent ping to database, %w", err)
 	}
 
-	return &Queries{
+	database = &Queries{
 		UserQueries:     &queries.UserQueries{DB: db},
 		ProductQueries:  &queries.ProductQueries{DB: db},
 		CategoryQueries: &queries.CategoryQueries{DB: db},
 		ReviewQueries:   &queries.ReviewQueries{DB: db},
-	}, nil
+	}
+
+	return nil
 }

@@ -32,9 +32,8 @@ func UserSignUp(c *fiber.Ctx) error {
 		})
 	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+	if err := utils.ValidateSignUp(signUp); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
 			"msg":   err.Error(),
 		})
@@ -47,6 +46,8 @@ func UserSignUp(c *fiber.Ctx) error {
 			"msg":   err.Error(),
 		})
 	}
+
+	db := database.GetDatabase()
 
 	user := &models.User{}
 
@@ -95,13 +96,14 @@ func UserSignIn(c *fiber.Ctx) error {
 		})
 	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+	if err := utils.ValidateSignIn(signIn); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
 			"msg":   err.Error(),
 		})
 	}
+
+	db := database.GetDatabase()
 
 	foundedUser, err := db.GetUserByEmail(signIn.Email)
 	if err != nil {

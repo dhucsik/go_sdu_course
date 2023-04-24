@@ -19,13 +19,7 @@ import (
 // @Failure default {object} string "message"
 // @Router /category [get]
 func GetCategories(c *fiber.Ctx) error {
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	db := database.GetDatabase()
 
 	categories, err := db.GetCategories()
 	if err != nil {
@@ -66,13 +60,7 @@ func GetCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	db := database.GetDatabase()
 
 	category, err := db.GetCategory(id)
 	if err != nil {

@@ -32,13 +32,7 @@ func ListReviews(c *fiber.Ctx) error {
 		})
 	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	db := database.GetDatabase()
 
 	reviews, err := db.ListReviews(productID)
 	if err != nil {
@@ -111,13 +105,7 @@ func CreateReview(c *fiber.Ctx) error {
 	review.ProductID = productID
 	review.UserID = claims.UserID
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	db := database.GetDatabase()
 
 	if err := db.CreateReview(review); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -180,13 +168,7 @@ func GetReview(c *fiber.Ctx) error {
 		})
 	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	db := database.GetDatabase()
 
 	review, err := db.GetReview(id)
 	if err != nil {
@@ -255,13 +237,7 @@ func UpdateReview(c *fiber.Ctx) error {
 		})
 	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	db := database.GetDatabase()
 
 	foundedReview, err := db.GetReview(id)
 	if err != nil {
@@ -343,13 +319,7 @@ func DeleteReview(c *fiber.Ctx) error {
 		})
 	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	db := database.GetDatabase()
 
 	review, err := db.GetReview(id)
 	if err != nil {
