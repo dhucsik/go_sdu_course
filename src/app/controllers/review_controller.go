@@ -220,7 +220,7 @@ func UpdateReview(c *fiber.Ctx) error {
 		})
 	}
 
-	review := models.Review{}
+	review := &models.Review{}
 
 	if err := c.BodyParser(review); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

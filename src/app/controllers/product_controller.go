@@ -179,6 +179,8 @@ func CreateProduct(c *fiber.Ctx) error {
 		})
 	}
 
+	product.UserID = claims.UserID
+
 	db := database.GetDatabase()
 
 	product.PasswordHash = ""

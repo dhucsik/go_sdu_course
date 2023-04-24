@@ -90,8 +90,8 @@ func (q *ProductQueries) GetProduct(id int) (models.Product, error) {
 }
 
 func (q *ProductQueries) CreateProduct(p *models.Product) error {
-	query := `INSERT INTO products(product_title, seller_id, category_id, price, description) 
-				VALUES ($1, $2, $3, $4, $5)`
+	query := `INSERT INTO products(product_title, seller_id, category_id, price, description, avg_rating) 
+				VALUES ($1, $2, $3, $4, $5, 0)`
 
 	_, err := q.Exec(query, p.ProductTitle, p.UserID, p.CategoryID, p.Price, p.Description)
 	if err != nil {

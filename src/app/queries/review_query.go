@@ -62,7 +62,7 @@ func (q *ReviewQueries) GetReview(id int) (models.Review, error) {
 	return review, nil
 }
 
-func (q *ReviewQueries) UpdateReview(id int, r models.Review) error {
+func (q *ReviewQueries) UpdateReview(id int, r *models.Review) error {
 	query := `UPDATE reviews SET rating = $2, comment = $3
 				WHERE review_id = $1`
 
