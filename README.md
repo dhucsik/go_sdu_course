@@ -2,6 +2,8 @@
 
 This is our project for course INF 368 "The Go programming language".
 
+The program code is in src directory.
+
 ## Our team
 
 1. Dias Galikhanov. 200103092.
